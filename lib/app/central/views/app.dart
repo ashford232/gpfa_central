@@ -8,10 +8,15 @@ import 'package:gpfa_central/app/features/applications/views/applications.dart';
 import 'package:gpfa_central/app/features/blog/views/blog.dart';
 import 'package:gpfa_central/app/features/home/views/home.dart';
 import 'package:gpfa_central/app/features/internships/views/internships.dart';
+import 'package:gpfa_central/app/features/mail/views/mail.dart';
+import 'package:gpfa_central/app/features/media/views/media.dart';
+import 'package:gpfa_central/app/features/profile/views/admin_profile.dart';
+import 'package:gpfa_central/app/features/profile/views/profile.dart';
 import 'package:gpfa_central/app/features/scholars/views/scholars.dart';
 import 'package:gpfa_central/app/features/settings/views/settings.dart';
 import 'package:gpfa_central/shared/ui/app_textfield.dart';
 import 'package:gpfa_central/shared/ui/assc.dart';
+import 'package:gpfa_central/shared/ui/avatars.dart';
 import 'package:hugeicons_pro/hugeicons.dart';
 
 class App extends ConsumerStatefulWidget {
@@ -214,23 +219,42 @@ class _AppState extends ConsumerState<App> {
                         Row(
                           children: [
                             IconButton(
-                              onPressed: () {},
-                              icon: Icon(HugeIconsStroke.mail01),
-                            ),
-                            const SizedBox(width: 5),
-                            IconButton(
-                              onPressed: () {},
-                              icon: Icon(HugeIconsStroke.notification02),
+                              onPressed: () {
+                                showAppDialogShell(
+                                  context: context,
+                                  builder: (context) {
+                                    return Mail();
+                                  },
+                                );
+                              },
+                              icon: Icon(HugeIconsStroke.chat01),
                             ),
                             const SizedBox(width: 5),
                             IconButton(
                               onPressed: () {
-                                FirebaseAuth.instance.signOut();
+                                showAppDialogShell(
+                                  context: context,
+                                  builder: (context) {
+                                    return Media();
+                                  },
+                                );
                               },
-                              icon: buildAdminAvatar(
-                                context: context,
-                                admin: widget.admin,
-                              ),
+                              icon: Icon(HugeIconsStroke.download02),
+                            ),
+                            const SizedBox(width: 5),
+                            IconButton(
+                              onPressed: () {
+                                showAppDialogShell(
+                                  context: context,
+                                  builder: (context) {
+                                    return AdminProfile(
+                                      admin: widget.admin,
+                                      currentAdmin: widget.admin,
+                                    );
+                                  },
+                                );
+                              },
+                              icon: buildAdminAvatar(admin: widget.admin),
                             ),
                           ],
                         ),
@@ -297,7 +321,7 @@ class Nav {
 }
 
 List<Nav> _navItems({required Admin admin}) {
-  final _navItems = [
+  final navItems = [
     Nav(
       name: 'Dashboard',
       id: 0,
@@ -350,5 +374,5 @@ List<Nav> _navItems({required Admin admin}) {
     ),
   ];
 
-  return _navItems;
+  return navItems;
 }

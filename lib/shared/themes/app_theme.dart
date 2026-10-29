@@ -75,7 +75,11 @@ class AppTheme {
     ),
     scaffoldBackgroundColor: Color(0xFFFFFDF9),
     dividerColor: const Color(0xFFDCD1BF),
-
+    iconButtonTheme: IconButtonThemeData(
+      style: IconButton.styleFrom(
+        shape: RoundedRectangleBorder(borderRadius: .circular(5)),
+      ),
+    ),
     appBarTheme: const AppBarTheme(
       backgroundColor: Color(0xFFFFFDF9),
       foregroundColor: deepBrown,
@@ -173,7 +177,11 @@ class AppTheme {
 
     scaffoldBackgroundColor: Color(0xFF18191C),
     dividerColor: const Color(0xFF493B2D),
-
+    iconButtonTheme: IconButtonThemeData(
+      style: IconButton.styleFrom(
+        shape: RoundedRectangleBorder(borderRadius: .circular(5)),
+      ),
+    ),
     appBarTheme: AppBarTheme(
       backgroundColor: const Color(0xFF18191C),
       foregroundColor: Color(0xFF18191C).appropriateTextColor,

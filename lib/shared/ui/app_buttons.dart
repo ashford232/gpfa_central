@@ -265,6 +265,20 @@ Widget appBackButton({VoidCallback? onPressed, Color? color}) {
             context?.back();
           }
         },
-    icon: Icon(HugeIconsSolid.arrowLeft02, color: color),
+    icon: Icon(HugeIconsSolid.arrowLeft04, color: color, size: 20),
+  );
+}
+
+Widget appBackButtonX({VoidCallback? onPressed, Color? color}) {
+  final context = router.navigatorKey.currentContext;
+  return IconButton(
+    onPressed:
+        onPressed ??
+        () {
+          if (context?.canPop() == true) {
+            context?.back();
+          }
+        },
+    icon: Icon(HugeIconsSolid.cancel01, color: color, size: 20),
   );
 }

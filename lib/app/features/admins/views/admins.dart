@@ -1,9 +1,14 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:gpfa_central/app/auth/data/models/admin.dart';
+import 'package:gpfa_central/app/features/admins/data/services/admins_controller.dart';
 import 'package:gpfa_central/app/features/admins/data/services/admins_providers.dart';
+import 'package:gpfa_central/app/features/profile/views/admin_profile.dart';
 import 'package:gpfa_central/shared/ui/assc.dart';
+import 'package:gpfa_central/shared/ui/avatars.dart';
 import 'package:gpfa_central/shared/ui/skeletons.dart';
+import 'package:gpfa_central/shared/utls/utils.dart';
+import 'package:hugeicons_pro/hugeicons.dart';
 
 class Admins extends ConsumerStatefulWidget {
   final Admin currentAdmin;
@@ -116,8 +121,6 @@ class AdminList extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final adminsController = ref.read(adminsControllerProvider);
-    ;
     final theme = Theme.of(context);
     if (admins.isEmpty) {
       return const Center(child: Text('No admins found.'));
@@ -142,88 +145,15 @@ class AdminList extends ConsumerWidget {
           itemCount: admins.length,
           itemBuilder: (context, index) {
             final admin = admins[index];
+            final adminsController = ref.read(adminsControllerProvider);
 
             return InkWell(
               onTap: () async {
-                try {
-                  if (admin.role == .unverified ||
-                      admin.role == .rejected ||
-                      admin.role == .admin ||
-                      admin.role == .staff && admin.role == .superadmin) {
-                    final res = await showCustomNativeDialog(
-                      admin.email,
-                      title: admin.name,
-                      windowTitle: 'Admin Management',
-                      naturalText: admin.role == .admin || admin.role == .staff
-                          ? null
-                          : admin.role == .rejected
-                          ? 'Delete'
-                          : 'Reject',
-                      positiveText: admin.role == .admin || admin.role == .staff
-                          ? 'Suspend'
-                          : 'Confirm',
-                      negativeText: 'Cancel',
-                    );
-
-                    switch (res) {
-                      case .negativeButton:
-                        break;
-                      case .neutralButton:
-                        if (admin.role == .rejected) {
-                          await adminsController.deleteAdmin(adminId: admin.id);
-                        } else {
-                          await adminsController.rejectAdmin(adminId: admin.id);
-                        }
-                        if (context.mounted) {
-                          AppNotification.show(
-                            additionalWidget: buildAdminAvatar(
-                              context: context,
-                              admin: admin,
-                            ),
-                            context: context,
-                            title: admin.name,
-
-                            message: admin.role == .rejected
-                                ? 'Pending Admin Deleted'
-                                : 'Admin Access Rejected',
-                            type: AppNotificationType.success,
-                          );
-                        }
-
-                        break;
-                      case .positiveButton:
-                        if (admin.role == .admin || admin.role == .staff) {
-                          await adminsController.suspendAdmin(
-                            adminId: admin.id,
-                          );
-                        } else {
-                          await adminsController.confirmAdmin(
-                            adminId: admin.id,
-                          );
-                        }
-                        if (context.mounted) {
-                          AppNotification.show(
-                            additionalWidget: buildAdminAvatar(
-                              context: context,
-                              admin: admin,
-                            ),
-                            context: context,
-                            title: admin.name,
-                            message:
-                                admin.role == .admin || admin.role == .staff
-                                ? 'Admin Suspended'
-                                : 'Admin Access Confirmed',
-                            type: AppNotificationType.success,
-                          );
-                        }
-                      default:
-                        break;
-                    }
-                  }
-                } catch (err) {
-                  debugPrint(err.toString());
-                  showNativeDialog(err.toString());
-                }
+                await showAdminDetails(
+                  admin: admin,
+                  currentAdmin: currentAdmin,
+                  context: context,
+                );
               },
               child: Container(
                 decoration: BoxDecoration(
@@ -237,7 +167,7 @@ class AdminList extends ConsumerWidget {
                   ),
                   child: Row(
                     children: [
-                      buildAdminAvatar(context: context, admin: admin),
+                      buildAdminAvatar(admin: admin),
                       const SizedBox(width: 10),
                       Expanded(
                         child: Column(
@@ -262,7 +192,19 @@ class AdminList extends ConsumerWidget {
                       ),
 
                       const SizedBox(width: 8),
-                      const Icon(Icons.chevron_right),
+                      if (admin.id == currentAdmin.id)
+                        SizedBox.shrink()
+                      else
+                        IconButton(
+                          onPressed: () async {
+                            await adminAction(
+                              admin: admin,
+                              currentAdmin: currentAdmin,
+                              adminsController: adminsController,
+                            );
+                          },
+                          icon: const Icon(HugeIconsStroke.moreVertical),
+                        ),
                     ],
                   ),
                 ),
@@ -273,4 +215,88 @@ class AdminList extends ConsumerWidget {
       },
     );
   }
+}
+
+Future<void> adminAction({
+  required Admin admin,
+  required Admin currentAdmin,
+  required AdminsController adminsController,
+}) async {
+  try {
+    final bool canManage =
+        admin.role == .unverified ||
+        admin.role == .rejected ||
+        admin.role == .admin ||
+        (admin.role == .staff && currentAdmin.role == .superadmin);
+
+    if (canManage) {
+      final res = await showCustomNativeDialog(
+        admin.email,
+        title: admin.name,
+        windowTitle: 'Admin Management',
+        naturalText: admin.role == .admin || admin.role == .staff
+            ? null
+            : admin.role == .rejected
+            ? 'Delete'
+            : 'Reject',
+        positiveText: admin.role == .admin || admin.role == .staff
+            ? 'Suspend'
+            : 'Confirm',
+        negativeText: 'Cancel',
+      );
+
+      switch (res) {
+        case .negativeButton:
+          break;
+        case .neutralButton:
+          if (admin.role == .rejected) {
+            await adminsController.deleteAdmin(adminId: admin.id);
+          } else {
+            await adminsController.rejectAdmin(adminId: admin.id);
+          }
+          AppNotification.show(
+            additionalWidget: buildAdminAvatar(admin: admin),
+            title: admin.name,
+            message: admin.role == .rejected
+                ? 'Pending Admin Deleted'
+                : 'Admin Access Rejected',
+            type: AppNotificationType.success,
+          );
+          break;
+        case .positiveButton:
+          if (admin.role == .admin || admin.role == .staff) {
+            await adminsController.suspendAdmin(adminId: admin.id);
+          } else {
+            await adminsController.confirmAdmin(adminId: admin.id);
+          }
+          AppNotification.show(
+            additionalWidget: buildAdminAvatar(admin: admin),
+            title: admin.name,
+            message: admin.role == .admin || admin.role == .staff
+                ? 'Admin Suspended'
+                : 'Admin Access Confirmed',
+            type: AppNotificationType.success,
+          );
+          break;
+        default:
+          break;
+      }
+    }
+  } catch (err) {
+    debugPrint(err.toString());
+    showNativeDialog(err.toString());
+  }
+}
+
+Future<void> showAdminDetails({
+  required BuildContext context,
+  required Admin admin,
+  required Admin currentAdmin,
+}) async {
+  showAppDialogShell(
+    context: context,
+    builder: (context) {
+      return AdminProfile(admin: admin, currentAdmin: currentAdmin);
+    },
+  );
 }

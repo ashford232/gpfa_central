@@ -2,10 +2,7 @@ import 'dart:async';
 
 import 'package:flutter/material.dart';
 import 'package:flutter_platform_alert/flutter_platform_alert.dart';
-import 'package:gpfa_central/app/auth/data/models/admin.dart';
 import 'package:gpfa_central/main.dart';
-import 'package:gpfa_central/shared/ui/app_cached_image.dart';
-import 'package:gpfa_central/shared/utls/extensions.dart';
 
 class AppLoadingDialog extends StatelessWidget {
   final String message;
@@ -103,281 +100,109 @@ Future<CustomButton?> showCustomNativeDialog(
   }
 }
 
-Color userColor(String id) {
-  final hash = id.hashCode & 0x7FFFFFFF;
-
-  final hue = (hash % 360).toDouble();
-
-  return HSLColor.fromAHSL(1.0, hue, 0.65, 0.50).toColor();
-}
-
-Widget buildAdminAvatar({
+Future<T?> showAppDialogShell<T>({
   required BuildContext context,
-  required Admin admin,
-  double? width,
-  double? height,
+  required WidgetBuilder builder,
+  String? title,
+  String? subtitle,
+  double width = 440,
+  double height = 440,
 }) {
-  if (admin.avatar.isNotEmpty) {
-    return AppCachedImage(
-      url: admin.avatar,
-      width: width ?? 50,
-      height: height ?? 50,
-    );
-  }
+  return showGeneralDialog<T>(
+    context: context,
+    barrierDismissible: true,
+    barrierLabel: 'Dismiss',
+    barrierColor: Colors.black.withValues(alpha: 0.3),
+    transitionDuration: const Duration(milliseconds: 120),
+    pageBuilder: (context, animation, secondaryAnimation) {
+      final brightness = Theme.of(context).brightness;
 
-  return Container(
-    width: width ?? 30,
-    height: height ?? 30,
-    decoration: BoxDecoration(
-      color: userColor(admin.id),
-      borderRadius: .circular((width ?? 30) / 2),
-    ),
-    child: Center(
-      child: Text(
-        admin.name[0].toUpperCase(),
-        style: TextStyle(
-          color: userColor(admin.id).appropriateTextColor,
-          fontSize: 20,
-          fontWeight: .bold,
-        ),
-      ),
-    ),
-  );
-}
+      final backgroundColor = brightness == Brightness.dark
+          ? const Color(0xFF202020)
+          : const Color(0xFFF3F3F3);
 
-enum AppNotificationType { success, error, warning, info }
+      final borderColor = brightness == Brightness.dark
+          ? Colors.white.withValues(alpha: 0.1)
+          : Colors.black.withValues(alpha: 0.1);
 
-class AppNotification {
-  AppNotification._();
+      final textColor = brightness == Brightness.dark
+          ? Colors.white
+          : Colors.black87;
 
-  static OverlayEntry? _entry;
+      final subtitleColor = brightness == Brightness.dark
+          ? Colors.white60
+          : Colors.black54;
 
-  static void show({
-    required BuildContext context,
-    required String title,
-    required String message,
-    AppNotificationType type = AppNotificationType.info,
-    String? actionLabel,
-    VoidCallback? onAction,
-    Widget? additionalWidget,
-    Duration duration = const Duration(seconds: 4),
-  }) {
-    final overlay = Overlay.of(context, rootOverlay: true);
-
-    _entry?.remove();
-    _entry = null;
-
-    late final OverlayEntry entry;
-
-    entry = OverlayEntry(
-      builder: (overlayContext) => _AppNotificationOverlay(
-        title: title,
-        message: message,
-        type: type,
-        actionLabel: actionLabel,
-        onAction: onAction,
-        duration: duration,
-        additionalWidget: additionalWidget,
-        onDismiss: () {
-          if (identical(_entry, entry)) {
-            _entry = null;
-          }
-          entry.remove();
-        },
-      ),
-    );
-
-    _entry = entry;
-    overlay.insert(entry);
-  }
-
-  static void dismiss() {
-    _entry?.remove();
-    _entry = null;
-  }
-}
-
-class _AppNotificationOverlay extends StatefulWidget {
-  const _AppNotificationOverlay({
-    required this.title,
-    required this.message,
-    required this.type,
-    required this.duration,
-    required this.onDismiss,
-    this.actionLabel,
-    this.onAction,
-    this.additionalWidget,
-  });
-
-  final String title;
-  final String message;
-  final AppNotificationType type;
-  final Duration duration;
-  final String? actionLabel;
-  final VoidCallback? onAction;
-  final VoidCallback onDismiss;
-  final Widget? additionalWidget;
-
-  @override
-  State<_AppNotificationOverlay> createState() =>
-      _AppNotificationOverlayState();
-}
-
-class _AppNotificationOverlayState extends State<_AppNotificationOverlay> {
-  Timer? _timer;
-  bool _visible = false;
-  bool _closing = false;
-
-  @override
-  void initState() {
-    super.initState();
-
-    WidgetsBinding.instance.addPostFrameCallback((_) {
-      if (mounted) {
-        setState(() => _visible = true);
-      }
-    });
-
-    if (widget.duration > Duration.zero) {
-      _timer = Timer(widget.duration, _hide);
-    }
-  }
-
-  void _hide() {
-    if (_closing || !mounted) return;
-
-    _closing = true;
-    _timer?.cancel();
-
-    setState(() => _visible = false);
-
-    Future.delayed(const Duration(milliseconds: 220), () {
-      widget.onDismiss();
-    });
-  }
-
-  Color _accentColor(ColorScheme colors) {
-    return switch (widget.type) {
-      AppNotificationType.success => const Color(0xFF16A34A),
-      AppNotificationType.error => colors.error,
-      AppNotificationType.warning => const Color(0xFFD97706),
-      AppNotificationType.info => colors.primary,
-    };
-  }
-
-  IconData _icon() {
-    return switch (widget.type) {
-      AppNotificationType.success => Icons.check_circle_outline_rounded,
-      AppNotificationType.error => Icons.error_outline_rounded,
-      AppNotificationType.warning => Icons.warning_amber_rounded,
-      AppNotificationType.info => Icons.info_outline_rounded,
-    };
-  }
-
-  @override
-  void dispose() {
-    _timer?.cancel();
-    super.dispose();
-  }
-
-  @override
-  Widget build(BuildContext context) {
-    final theme = Theme.of(context);
-    final colors = theme.colorScheme;
-    final accent = _accentColor(colors);
-
-    return Positioned(
-      bottom: 20,
-      right: 20,
-      child: SafeArea(
-        child: Material(
-          color: Colors.transparent,
-          child: AnimatedSlide(
-            offset: _visible ? Offset.zero : const Offset(0.08, 0),
-            duration: const Duration(milliseconds: 220),
-            curve: Curves.easeOutCubic,
-            child: AnimatedOpacity(
-              opacity: _visible ? 1 : 0,
-              duration: const Duration(milliseconds: 180),
-              child: ConstrainedBox(
-                constraints: const BoxConstraints(maxWidth: 380, minWidth: 300),
-                child: Container(
-                  decoration: BoxDecoration(
-                    color: colors.surface,
-                    borderRadius: BorderRadius.circular(5),
-                    border: Border.all(
-                      color: colors.outlineVariant.withValues(alpha: 0.6),
+      return Center(
+        child: FadeTransition(
+          opacity: animation,
+          child: ScaleTransition(
+            scale: Tween<double>(begin: 0.96, end: 1.0).animate(
+              CurvedAnimation(parent: animation, curve: Curves.easeOut),
+            ),
+            child: Material(
+              color: Colors.transparent,
+              child: Container(
+                width: width,
+                height: height,
+                constraints: const BoxConstraints(maxHeight: 700),
+                decoration: BoxDecoration(
+                  color: backgroundColor,
+                  borderRadius: BorderRadius.circular(8),
+                  border: Border.all(color: borderColor, width: 1),
+                  boxShadow: [
+                    BoxShadow(
+                      color: Colors.black.withValues(alpha: 0.15),
+                      blurRadius: 24,
+                      offset: const Offset(0, 8),
                     ),
-                    boxShadow: [
-                      BoxShadow(
-                        color: Colors.black.withValues(alpha: 0.12),
-                        blurRadius: 28,
-                        offset: const Offset(0, 8),
-                      ),
-                    ],
-                  ),
-                  child: Padding(
-                    padding: const EdgeInsets.all(10),
-                    child: Column(
-                      mainAxisSize: MainAxisSize.min,
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Row(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            if (widget.additionalWidget != null) ...[
-                              widget.additionalWidget!,
-                              const SizedBox(width: 10),
-                            ] else
-                              Icon(_icon(), color: accent, size: 5),
-                            const SizedBox(width: 5),
-                            Expanded(
-                              child: Column(
-                                crossAxisAlignment: CrossAxisAlignment.start,
-                                children: [
-                                  Text(
-                                    widget.title,
-                                    style: theme.textTheme.titleSmall?.copyWith(
-                                      fontWeight: FontWeight.w700,
-                                    ),
-                                  ),
-                                  const SizedBox(height: 5),
-                                  Text(
-                                    widget.message,
-                                    style: theme.textTheme.bodyMedium?.copyWith(
-                                      color: colors.onSurfaceVariant,
-                                      height: 1.4,
-                                    ),
-                                  ),
-                                ],
+                  ],
+                ),
+                child: ClipRRect(
+                  borderRadius: BorderRadius.circular(8),
+                  child: Column(
+                    mainAxisSize: MainAxisSize.min,
+                    crossAxisAlignment: CrossAxisAlignment.stretch,
+                    children: [
+                      // Optional Standard Header (if title is provided)
+                      if (title != null)
+                        Padding(
+                          padding: const EdgeInsets.fromLTRB(24, 24, 24, 12),
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Text(
+                                title,
+                                style: TextStyle(
+                                  fontSize: 18,
+                                  fontWeight: FontWeight.w600,
+                                  color: textColor,
+                                ),
                               ),
-                            ),
-                          ],
-                        ),
-                        if (widget.actionLabel != null) ...[
-                          const SizedBox(height: 14),
-                          Align(
-                            alignment: Alignment.centerRight,
-                            child: FilledButton.tonal(
-                              onPressed: widget.onAction == null
-                                  ? null
-                                  : () {
-                                      _hide();
-                                      widget.onAction!();
-                                    },
-                              child: Text(widget.actionLabel!),
-                            ),
+                              if (subtitle != null) ...[
+                                const SizedBox(height: 4),
+                                Text(
+                                  subtitle,
+                                  style: TextStyle(
+                                    fontSize: 13,
+                                    color: subtitleColor,
+                                  ),
+                                ),
+                              ],
+                            ],
                           ),
-                        ],
-                      ],
-                    ),
+                        ),
+
+                      // 🔥 HERE IS WHERE YOUR CUSTOM WIDGET GOES
+                      Flexible(child: builder(context)),
+                    ],
                   ),
                 ),
               ),
             ),
           ),
         ),
-      ),
-    );
-  }
+      );
+    },
+  );
 }
