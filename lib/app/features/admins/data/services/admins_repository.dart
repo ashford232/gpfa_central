@@ -61,6 +61,7 @@ class AdminsRepository {
       debugPrint(err.toString());
     }
   }
+
   Future<void> suspendAdmin({required String adminId}) async {
     try {
       final ref = _firestore.collection('admins').doc(adminId);

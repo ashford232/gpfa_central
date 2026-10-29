@@ -21,6 +21,7 @@ class AdminsController {
   Future<void> deleteAdmin({required String adminId}) async {
     return _adminsRepository.deleteAdmin(adminId: adminId);
   }
+
   Future<void> suspendAdmin({required String adminId}) async {
     return _adminsRepository.suspendAdmin(adminId: adminId);
   }

@@ -11,7 +11,6 @@ class Blog extends ConsumerStatefulWidget {
 class _HomeState extends ConsumerState<Blog> {
   @override
   Widget build(BuildContext context) {
-        return Scaffold(appBar: AppBar(title: Text("Blog")));
-
+    return Scaffold(appBar: AppBar(title: Text("Blog")));
   }
 }

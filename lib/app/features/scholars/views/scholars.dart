@@ -11,7 +11,6 @@ class Scholars extends ConsumerStatefulWidget {
 class _HomeState extends ConsumerState<Scholars> {
   @override
   Widget build(BuildContext context) {
-       return Scaffold(appBar: AppBar(title: Text("Scholars")));
-
+    return Scaffold(appBar: AppBar(title: Text("Scholars")));
   }
 }

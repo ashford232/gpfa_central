@@ -7,4 +7,3 @@ Color userColor(String id) {
 
   return HSLColor.fromAHSL(1.0, hue, 0.65, 0.50).toColor();
 }
-

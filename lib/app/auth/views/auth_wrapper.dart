@@ -13,7 +13,7 @@ class AuthWrapper extends ConsumerWidget {
     return authStream.when(
       data: (admin) {
         if (admin == null) return Signin();
-        return AppWrapper(admin: admin,);
+        return AppWrapper(admin: admin);
       },
       error: (err, st) => Scaffold(body: Center(child: Text(st.toString()))),
       loading: () => Scaffold(body: Center(child: CircularProgressIndicator())),

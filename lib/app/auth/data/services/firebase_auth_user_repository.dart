@@ -4,6 +4,7 @@ import 'package:flutter/cupertino.dart';
 import 'package:gpfa_central/app/auth/data/models/admin.dart';
 import 'package:gpfa_central/app/auth/data/models/enums.dart';
 import 'package:rxdart/rxdart.dart';
+
 class FirebaseAuthUserRepository {
   final FirebaseAuth _auth;
   final FirebaseFirestore _firestore;
@@ -14,24 +15,22 @@ class FirebaseAuthUserRepository {
   }
 
   Stream<Admin?> getAdminStream() {
-  return getUserStream().switchMap((user) {
-    if (user == null) {
-      return Stream.value(null);
-    }
-
-    return _firestore
-        .collection('admins')
-        .doc(user.uid)
-        .snapshots()
-        .map((snapshot) {
-      if (!snapshot.exists || snapshot.data() == null) {
-        return null;
+    return getUserStream().switchMap((user) {
+      if (user == null) {
+        return Stream.value(null);
       }
 
-      return Admin.fromMap(snapshot.data()!);
+      return _firestore.collection('admins').doc(user.uid).snapshots().map((
+        snapshot,
+      ) {
+        if (!snapshot.exists || snapshot.data() == null) {
+          return null;
+        }
+
+        return Admin.fromMap(snapshot.data()!);
+      });
     });
-  });
-}
+  }
 
   Future<Admin?> getAdmin() async {
     try {

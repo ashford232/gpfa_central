@@ -1,4 +1,3 @@
-
 import 'package:flutter/material.dart';
 
 extension ColorTextColor on Color {
@@ -6,7 +5,6 @@ extension ColorTextColor on Color {
     return computeLuminance() > 0.5 ? Colors.black : Colors.white;
   }
 }
-
 
 extension StringCapitalization on String {
   String get capitalize {

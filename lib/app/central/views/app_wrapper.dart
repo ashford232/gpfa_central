@@ -13,6 +13,6 @@ class AppWrapper extends ConsumerWidget {
     if (admin.role == .unverified) {
       return UnverifiedAdmin();
     }
-    return App(admin: admin,);
+    return App(admin: admin);
   }
 }

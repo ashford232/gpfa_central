@@ -11,7 +11,6 @@ class Internships extends ConsumerStatefulWidget {
 class _HomeState extends ConsumerState<Internships> {
   @override
   Widget build(BuildContext context) {
-       return Scaffold(appBar: AppBar(title: Text("Internships")));
-
+    return Scaffold(appBar: AppBar(title: Text("Internships")));
   }
 }
