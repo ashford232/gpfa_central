@@ -1,3 +1,4 @@
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:gpfa_central/app/auth/data/models/admin.dart';
@@ -223,7 +224,9 @@ class _AppState extends ConsumerState<App> {
                             ),
                             const SizedBox(width: 5),
                             IconButton(
-                              onPressed: () {},
+                              onPressed: () {
+                                FirebaseAuth.instance.signOut();
+                              },
                               icon: buildAdminAvatar(
                                 context: context,
                                 admin: widget.admin,
@@ -302,13 +305,14 @@ List<Nav> _navItems({required Admin admin}) {
       activeIcon: HugeIconsSolid.home04,
       widget: Home(),
     ),
-    Nav(
-      name: 'Admins',
-      id: 1,
-      icon: HugeIconsStroke.userShield01,
-      activeIcon: HugeIconsSolid.userShield01,
-      widget: Admins(currentAdmin: admin),
-    ),
+    if (admin.role == .superadmin)
+      Nav(
+        name: 'Admins',
+        id: 1,
+        icon: HugeIconsStroke.userShield01,
+        activeIcon: HugeIconsSolid.userShield01,
+        widget: Admins(currentAdmin: admin),
+      ),
     Nav(
       name: 'Scholars',
       id: 2,
