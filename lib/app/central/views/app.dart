@@ -1,4 +1,3 @@
-import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:gpfa_central/app/auth/data/models/admin.dart';
@@ -11,7 +10,6 @@ import 'package:gpfa_central/app/features/internships/views/internships.dart';
 import 'package:gpfa_central/app/features/mail/views/mail.dart';
 import 'package:gpfa_central/app/features/media/views/media.dart';
 import 'package:gpfa_central/app/features/profile/views/admin_profile.dart';
-import 'package:gpfa_central/app/features/profile/views/profile.dart';
 import 'package:gpfa_central/app/features/scholars/views/scholars.dart';
 import 'package:gpfa_central/app/features/settings/views/settings.dart';
 import 'package:gpfa_central/shared/ui/app_textfield.dart';
