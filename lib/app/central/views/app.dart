@@ -10,7 +10,7 @@ import 'package:gpfa_central/app/features/internships/views/internships.dart';
 import 'package:gpfa_central/app/features/mail/views/mail.dart';
 import 'package:gpfa_central/app/features/media/views/media.dart';
 import 'package:gpfa_central/app/features/profile/views/admin_profile.dart';
-import 'package:gpfa_central/app/features/scholars/views/scholars.dart';
+import 'package:gpfa_central/app/features/scholars/views/scholars_view.dart';
 import 'package:gpfa_central/app/features/settings/views/settings.dart';
 import 'package:gpfa_central/shared/ui/app_textfield.dart';
 import 'package:gpfa_central/shared/ui/assc.dart';
@@ -340,7 +340,7 @@ List<Nav> _navItems({required Admin admin}) {
       id: 2,
       icon: HugeIconsStroke.userGroup,
       activeIcon: HugeIconsSolid.userGroup,
-      widget: Scholars(),
+      widget: ScholarView(currentAdmin: admin),
     ),
     Nav(
       name: 'Applications',

@@ -18,6 +18,7 @@ class FirebaseAuthRepository {
 
       return userCredential.user;
     } on FirebaseAuthException catch (e) {
+      print(e);
       if (e.code == 'wrong-password' ||
           e.code == 'user-not-found' ||
           e.code == 'invalid-credential' ||

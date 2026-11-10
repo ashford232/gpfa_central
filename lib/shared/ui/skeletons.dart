@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:gpfa_central/app/auth/data/models/admin.dart';
+import 'package:gpfa_central/app/features/scholars/data/models/scholar_model.dart';
 import 'package:skeletonizer/skeletonizer.dart';
 
 class AdminDummyList extends StatelessWidget {
@@ -82,4 +83,93 @@ class AdminDummyList extends StatelessWidget {
       },
     );
   }
+}
+
+class ScholarDummyList extends StatelessWidget {
+  const ScholarDummyList({super.key, required this.scholars});
+
+  final List<ScholarModel> scholars;
+
+  @override
+  Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+
+    return LayoutBuilder(
+      builder: (context, constraints) {
+        final crossAxisCount = switch (constraints.maxWidth) {
+          >= 1100 => 3,
+          >= 650 => 2,
+          _ => 1,
+        };
+
+        return GridView.builder(
+          padding: const EdgeInsets.only(top: 8, bottom: 16),
+          gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
+            crossAxisCount: crossAxisCount,
+            crossAxisSpacing: 10,
+            mainAxisSpacing: 2,
+            mainAxisExtent: 60,
+          ),
+          itemCount: scholars.length,
+          itemBuilder: (context, index) {
+            final scholar = scholars[index];
+
+            return dummyUser(
+              theme: theme,
+              title: scholar.status.name,
+              subtitle: scholar.userId,
+            );
+          },
+        );
+      },
+    );
+  }
+}
+
+Widget dummyUser({
+  required ThemeData theme,
+  required String title,
+  required String subtitle,
+}) {
+  return Container(
+    decoration: BoxDecoration(
+      color: theme.colorScheme.onSurface.withValues(alpha: 0.06),
+      borderRadius: BorderRadius.circular(2),
+    ),
+    child: Padding(
+      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 2),
+      child: Row(
+        children: [
+          Bone.circle(size: 35),
+          const SizedBox(width: 10),
+          Expanded(
+            child: Skeletonizer(
+              effect: PulseEffect(
+                from: theme.colorScheme.onSurface.withValues(alpha: 0.1),
+              ),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  Text(
+                    title,
+                    maxLines: 1,
+                    overflow: TextOverflow.ellipsis,
+                    style: theme.textTheme.titleMedium,
+                  ),
+                  const SizedBox(height: 4),
+                  Text(
+                    subtitle,
+                    maxLines: 1,
+                    overflow: TextOverflow.ellipsis,
+                    style: theme.textTheme.bodyMedium,
+                  ),
+                ],
+              ),
+            ),
+          ),
+        ],
+      ),
+    ),
+  );
 }
