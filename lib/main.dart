@@ -29,7 +29,7 @@ class GpfaCentral extends StatelessWidget {
       navigatorKey: router.navigatorKey,
       theme: AppTheme.light,
       darkTheme: AppTheme.dark,
-      themeMode: .system,
+      themeMode: .light,
       debugShowCheckedModeBanner: false,
       home: AuthWrapper(),
     );

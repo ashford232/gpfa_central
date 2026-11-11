@@ -3,7 +3,9 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:gpfa_central/app/auth/data/models/admin.dart';
 import 'package:gpfa_central/app/features/scholars/data/models/scholar_model.dart';
 import 'package:gpfa_central/app/features/scholars/data/services/scholars_provider.dart';
+import 'package:gpfa_central/app/features/scholars/views/scholar_review.dart';
 import 'package:gpfa_central/app/features/users/data/services/user_providers.dart';
+import 'package:gpfa_central/shared/ui/assc.dart';
 import 'package:gpfa_central/shared/ui/avatars.dart';
 import 'package:gpfa_central/shared/ui/skeletons.dart';
 import 'package:skeletonizer/skeletonizer.dart';
@@ -27,11 +29,11 @@ class _ScholarsState extends ConsumerState<ScholarView> {
     final scholarsAsync = ref.watch(watchAllScholarsProvider);
     final theme = Theme.of(context);
     return Scaffold(
-      appBar: AppBar(title: const Text('Admins')),
+      appBar: AppBar(title: const Text('Scholars')),
       body: Padding(
         padding: const EdgeInsets.all(16),
         child: DefaultTabController(
-          length: 3,
+          length: 5,
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
@@ -51,7 +53,7 @@ class _ScholarsState extends ConsumerState<ScholarView> {
                   Tab(child: Text('Accepted ${accepted ?? "0"}')),
                   Tab(child: Text('Underreview ${underReview ?? "0"}')),
                   Tab(child: Text('Pending ${pending ?? "0"}')),
-                  Tab(child: Text('Disqualified ${rejected ?? "0"}')),
+                  Tab(child: Text('Disqualified ${disqualified ?? "0"}')),
                   Tab(child: Text('Rejected Scholars ${rejected ?? "0"}')),
                 ],
               ),
@@ -167,7 +169,21 @@ class ScholarList extends ConsumerWidget {
                   return SizedBox.shrink();
                 }
                 return InkWell(
-                  onTap: () async {},
+                  onTap: () async {
+                    if (scholar.status == .pending) {
+                      ref
+                          .read(scholarControllerProvider)
+                          .changeStatus(
+                            status: .underReview,
+                            scholarId: scholar.id,
+                          );
+                    }
+                    showAppDialogShell(
+                      context: context,
+                      builder: (context) =>
+                          ScholarReview(scholar: scholar, user: user),
+                    );
+                  },
                   child: Container(
                     decoration: BoxDecoration(
                       color: theme.colorScheme.onSurface.withValues(
