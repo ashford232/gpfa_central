@@ -41,11 +41,45 @@ class ScholarsRepository {
 
   Future<void> changeScholarStatus({
     required String scholarId,
+    required String userId,
     required ApplicationStatus status,
   }) async {
     try {
-      final doc = _firestore.collection("scholars").doc(scholarId);
-      doc.update({"status": status.name});
+      final docRef = _firestore.collection("scholars").doc(scholarId);
+      final doc = await docRef.get();
+      if (doc.exists) {
+        docRef.update({"status": status.name});
+
+        if (status == .accepted) {
+          await onAccept(userId: userId);
+        } else {
+          await onNotAccept(userId: userId);
+        }
+      }
+    } catch (err) {
+      debugPrint(err.toString());
+    }
+  }
+
+  Future<void> onAccept({required String userId}) async {
+    try {
+      final docRef = _firestore.collection('users').doc(userId);
+      final doc = await docRef.get();
+      if (doc.exists) {
+        docRef.update({"userRole": UserRole.scholar.name});
+      }
+    } catch (err) {
+      debugPrint(err.toString());
+    }
+  }
+
+  Future<void> onNotAccept({required String userId}) async {
+    try {
+      final docRef = _firestore.collection('users').doc(userId);
+      final doc = await docRef.get();
+      if (doc.exists) {
+        docRef.update({"userRole": UserRole.user.name});
+      }
     } catch (err) {
       debugPrint(err.toString());
     }
