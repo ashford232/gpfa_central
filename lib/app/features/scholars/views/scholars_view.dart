@@ -176,6 +176,7 @@ class ScholarList extends ConsumerWidget {
                           .changeStatus(
                             status: .underReview,
                             scholarId: scholar.id,
+                            userId: user.id,
                           );
                     }
                     showAppDialogShell(

@@ -24,6 +24,7 @@ class ScholarReview extends ConsumerStatefulWidget {
 class _ScholarReviewState extends ConsumerState<ScholarReview> {
   bool disqualifyLoading = false;
   bool rejectLoading = false;
+  bool underReviewLoading = false;
   bool acceptLoading = false;
 
   @override
@@ -85,6 +86,7 @@ class _ScholarReviewState extends ConsumerState<ScholarReview> {
                             await scholarController.changeStatus(
                               status: .accepted,
                               scholarId: widget.scholar.id,
+                              userId: widget.user.id,
                             );
                           } catch (err) {
                             AppNotification.show(
@@ -118,6 +120,7 @@ class _ScholarReviewState extends ConsumerState<ScholarReview> {
                             await scholarController.changeStatus(
                               status: .rejected,
                               scholarId: widget.scholar.id,
+                              userId: widget.user.id,
                             );
                           } catch (err) {
                             AppNotification.show(
@@ -138,6 +141,7 @@ class _ScholarReviewState extends ConsumerState<ScholarReview> {
                       ),
                       const SizedBox(height: 10),
                     ],
+
                     if (widget.scholar.status != .disqualified) ...[
                       AppButton(
                         width: 300,
@@ -151,6 +155,7 @@ class _ScholarReviewState extends ConsumerState<ScholarReview> {
                             await scholarController.changeStatus(
                               status: .disqualified,
                               scholarId: widget.scholar.id,
+                              userId: widget.user.id,
                             );
                           } catch (err) {
                             AppNotification.show(
@@ -168,6 +173,41 @@ class _ScholarReviewState extends ConsumerState<ScholarReview> {
                         },
                         text: 'Disqualify',
                         prefix: Icon(HugeIconsStroke.userBlock01),
+                      ),
+                      const SizedBox(height: 10),
+                    ],
+
+                    if (widget.scholar.status != .underReview) ...[
+                      AppButton(
+                        width: 300,
+
+                        isLoading: underReviewLoading,
+                        onPressed: () async {
+                          try {
+                            setState(() {
+                              underReviewLoading = true;
+                            });
+                            await scholarController.changeStatus(
+                              status: .underReview,
+                              scholarId: widget.scholar.id,
+                              userId: widget.user.id,
+                            );
+                          } catch (err) {
+                            AppNotification.show(
+                              title: 'Error',
+                              message: err.toString(),
+                            );
+                          } finally {
+                            setState(() {
+                              underReviewLoading = false;
+                            });
+                            if (context.mounted) {
+                              context.back();
+                            }
+                          }
+                        },
+                        text: 'Under Review',
+                        prefix: Icon(HugeIconsStroke.view),
                       ),
                     ],
                   ],

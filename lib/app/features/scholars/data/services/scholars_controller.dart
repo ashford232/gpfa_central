@@ -19,10 +19,12 @@ class ScholarsController {
   Future<void> changeStatus({
     required ApplicationStatus status,
     required String scholarId,
+    required String userId,
   }) async {
     try {
       return _repository.changeScholarStatus(
         scholarId: scholarId,
+        userId: userId,
         status: status,
       );
     } catch (err) {
