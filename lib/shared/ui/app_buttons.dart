@@ -1,3 +1,4 @@
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:gpfa_central/main.dart';
 import 'package:hugeicons_pro/hugeicons.dart';
@@ -255,30 +256,42 @@ class _AppPressableState extends State<AppPressable> {
   }
 }
 
-Widget appBackButton({VoidCallback? onPressed, Color? color}) {
+Widget appBackButton({VoidCallback? onPressed, Color? color, bool? x = false}) {
   final context = router.navigatorKey.currentContext;
-  return IconButton(
+
+  if (context == null) {
+    return CupertinoButton(
+      onPressed:
+          onPressed ??
+          () {
+            if (context?.canPop() == true) {
+              context?.back();
+            }
+          },
+      child: Icon(
+        x == true ? HugeIconsSolid.cabinet01 : HugeIconsSolid.arrowLeft02,
+        color: color,
+        size: 20,
+      ),
+    );
+  }
+
+  return CupertinoButton(
     onPressed:
         onPressed ??
         () {
-          if (context?.canPop() == true) {
-            context?.back();
+          if (context.canPop() == true) {
+            context.back();
           }
         },
-    icon: Icon(HugeIconsSolid.arrowLeft04, color: color, size: 20),
+    child: Icon(
+      x == true ? HugeIconsSolid.cabinet01 : HugeIconsSolid.arrowLeft02,
+      color: Theme.of(context).colorScheme.onSurface,
+      size: 20,
+    ),
   );
 }
 
 Widget appBackButtonX({VoidCallback? onPressed, Color? color}) {
-  final context = router.navigatorKey.currentContext;
-  return IconButton(
-    onPressed:
-        onPressed ??
-        () {
-          if (context?.canPop() == true) {
-            context?.back();
-          }
-        },
-    icon: Icon(HugeIconsSolid.cancel01, color: color, size: 20),
-  );
+  return appBackButton(color: color, onPressed: onPressed, x: true);
 }

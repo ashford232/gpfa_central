@@ -34,90 +34,112 @@ class _ScholarsState extends ConsumerState<ScholarView> {
         padding: const EdgeInsets.all(16),
         child: DefaultTabController(
           length: 5,
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              TabBar(
-                dividerHeight: 0,
-                indicatorSize: .tab,
-                isScrollable: true,
-                tabAlignment: .start,
-                indicator: BoxDecoration(
-                  color: theme.colorScheme.onSurface.withValues(alpha: 0.1),
-                  borderRadius: .circular(2),
-                ),
-                labelColor: theme.colorScheme.onSurface,
-                //   padding: .zero,
-                splashBorderRadius: .circular(2),
-                tabs: [
-                  Tab(child: Text('Accepted ${accepted ?? "0"}')),
-                  Tab(child: Text('Underreview ${underReview ?? "0"}')),
-                  Tab(child: Text('Pending ${pending ?? "0"}')),
-                  Tab(child: Text('Disqualified ${disqualified ?? "0"}')),
-                  Tab(child: Text('Rejected Scholars ${rejected ?? "0"}')),
-                ],
-              ),
-              const SizedBox(height: 5),
-              Expanded(
-                child: scholarsAsync.when(
-                  loading: () => AdminDummyList(admins: dummyAdmins),
-                  error: (error, stackTrace) =>
-                      Center(child: Text('Error loading scholars: $error')),
-                  data: (scholars) {
-                    final acceptedScholar = scholars
-                        .where((scholar) => scholar.status == .accepted)
-                        .toList();
-                    final pendingScholar = scholars
-                        .where((scholar) => scholar.status == .pending)
-                        .toList();
-                    final rejectedScholar = scholars
-                        .where((scholar) => scholar.status == .rejected)
-                        .toList();
+          child: LayoutBuilder(
+            builder: (context, constraints) {
+              final padding = switch (constraints.maxWidth) {
+                >= 1100 => EdgeInsets.symmetric(horizontal: 100),
+                >= 650 => EdgeInsets.symmetric(horizontal: 20),
+                _ => EdgeInsets.symmetric(horizontal: 5),
+              };
 
-                    final underReviewScholar = scholars
-                        .where((scholar) => scholar.status == .underReview)
-                        .toList();
-                    final disqualifiedScholar = scholars
-                        .where((scholar) => scholar.status == .disqualified)
-                        .toList();
-
-                    WidgetsBinding.instance.addPostFrameCallback((_) {
-                      setState(() {
-                        accepted = acceptedScholar.length;
-                        pending = pendingScholar.length;
-                        rejected = rejectedScholar.length;
-                        underReview = underReviewScholar.length;
-                        disqualified = disqualifiedScholar.length;
-                      });
-                    });
-                    return TabBarView(
-                      children: [
-                        ScholarList(
-                          scholars: acceptedScholar,
-                          currentAdmin: widget.currentAdmin,
+              return Padding(
+                padding: padding,
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    TabBar(
+                      dividerHeight: 0,
+                      indicatorSize: .tab,
+                      isScrollable: true,
+                      tabAlignment: .start,
+                      indicator: BoxDecoration(
+                        color: theme.colorScheme.onSurface.withValues(
+                          alpha: 0.1,
                         ),
-                        ScholarList(
-                          scholars: underReviewScholar,
-                          currentAdmin: widget.currentAdmin,
-                        ),
-                        ScholarList(
-                          scholars: pendingScholar,
-                          currentAdmin: widget.currentAdmin,
-                        ),
-                        ScholarList(
-                          scholars: disqualifiedScholar,
-                          currentAdmin: widget.currentAdmin,
-                        ),
-                        ScholarList(
-                          scholars: rejectedScholar,
-                          currentAdmin: widget.currentAdmin,
+                        borderRadius: .circular(2),
+                      ),
+                      labelColor: theme.colorScheme.onSurface,
+                      //   padding: .zero,
+                      splashBorderRadius: .circular(2),
+                      tabs: [
+                        Tab(child: Text('Accepted ${accepted ?? "0"}')),
+                        Tab(child: Text('Underreview ${underReview ?? "0"}')),
+                        Tab(child: Text('Pending ${pending ?? "0"}')),
+                        Tab(child: Text('Disqualified ${disqualified ?? "0"}')),
+                        Tab(
+                          child: Text('Rejected Scholars ${rejected ?? "0"}'),
                         ),
                       ],
-                    );
-                  },
+                    ),
+                    const SizedBox(height: 5),
+                    Expanded(
+                      child: scholarsAsync.when(
+                        loading: () => AdminDummyList(admins: dummyAdmins),
+                        error: (error, stackTrace) => Center(
+                          child: Text('Error loading scholars: $error'),
+                        ),
+                        data: (scholars) {
+                          final acceptedScholar = scholars
+                              .where((scholar) => scholar.status == .accepted)
+                              .toList();
+                          final pendingScholar = scholars
+                              .where((scholar) => scholar.status == .pending)
+                              .toList();
+                          final rejectedScholar = scholars
+                              .where((scholar) => scholar.status == .rejected)
+                              .toList();
+
+                          final underReviewScholar = scholars
+                              .where(
+                                (scholar) => scholar.status == .underReview,
+                              )
+                              .toList();
+                          final disqualifiedScholar = scholars
+                              .where(
+                                (scholar) => scholar.status == .disqualified,
+                              )
+                              .toList();
+
+                          WidgetsBinding.instance.addPostFrameCallback((_) {
+                            setState(() {
+                              accepted = acceptedScholar.length;
+                              pending = pendingScholar.length;
+                              rejected = rejectedScholar.length;
+                              underReview = underReviewScholar.length;
+                              disqualified = disqualifiedScholar.length;
+                            });
+                          });
+                          return TabBarView(
+                            children: [
+                              ScholarList(
+                                scholars: acceptedScholar,
+                                currentAdmin: widget.currentAdmin,
+                              ),
+                              ScholarList(
+                                scholars: underReviewScholar,
+                                currentAdmin: widget.currentAdmin,
+                              ),
+                              ScholarList(
+                                scholars: pendingScholar,
+                                currentAdmin: widget.currentAdmin,
+                              ),
+                              ScholarList(
+                                scholars: disqualifiedScholar,
+                                currentAdmin: widget.currentAdmin,
+                              ),
+                              ScholarList(
+                                scholars: rejectedScholar,
+                                currentAdmin: widget.currentAdmin,
+                              ),
+                            ],
+                          );
+                        },
+                      ),
+                    ),
+                  ],
                 ),
-              ),
-            ],
+              );
+            },
           ),
         ),
       ),
@@ -154,8 +176,8 @@ class ScholarList extends ConsumerWidget {
           padding: const EdgeInsets.only(top: 8, bottom: 16),
           gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
             crossAxisCount: crossAxisCount,
-            crossAxisSpacing: 10,
-            mainAxisSpacing: 2,
+            crossAxisSpacing: 5,
+            mainAxisSpacing: 5,
             mainAxisExtent: 60,
           ),
           itemCount: scholars.length,

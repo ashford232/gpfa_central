@@ -3,7 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:gpfa_central/app/auth/data/models/admin.dart';
 import 'package:gpfa_central/app/auth/data/services/auth_providers.dart';
 import 'package:gpfa_central/app/features/admins/data/services/admins_providers.dart';
-import 'package:gpfa_central/app/features/admins/views/admins.dart';
+import 'package:gpfa_central/app/features/admins/views/admin_view.dart';
 import 'package:gpfa_central/shared/ui/app_buttons.dart';
 import 'package:gpfa_central/shared/ui/assc.dart';
 import 'package:gpfa_central/shared/ui/avatars.dart';
